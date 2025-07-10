@@ -3,24 +3,24 @@
 # Wait for the database to be ready
 if [ -n "$DATABASE_URL" ]; then
     echo "Waiting for database..."
-    
+
     # Extract host and port from DATABASE_URL
     if [[ $DATABASE_URL == postgresql* ]]; then
         # Extract the host and port from DATABASE_URL
         host=$(echo $DATABASE_URL | sed -E 's/^postgresql:\/\/([^:]+):([^@]+)@([^:]+):([^\/]+)\/(.+)$/\3/')
         port=$(echo $DATABASE_URL | sed -E 's/^postgresql:\/\/([^:]+):([^@]+)@([^:]+):([^\/]+)\/(.+)$/\4/')
-        
+
         # Handle default port if not extracted correctly
         if [ -z "$port" ]; then
             port=5432
         fi
-        
+
         # Wait for the database
         while ! nc -z $host $port; do
             echo "Database is unavailable - sleeping"
             sleep 2
         done
-        
+
         echo "Database is up - continuing..."
     fi
 fi

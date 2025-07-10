@@ -28,11 +28,11 @@ docker exec $DB_CONTAINER pg_dump -U $DB_USER -d $DB_NAME > $BACKUP_FILENAME
 # Check if backup was successful
 if [ $? -eq 0 ]; then
     echo "Backup completed successfully"
-    
+
     # Compress the backup
     gzip $BACKUP_FILENAME
     echo "Backup compressed: $BACKUP_FILENAME.gz"
-    
+
     # Delete backups older than 30 days
     find $BACKUP_DIR -name "*.gz" -type f -mtime +30 -delete
     echo "Removed backups older than 30 days"

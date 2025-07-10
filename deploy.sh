@@ -32,12 +32,12 @@ case $env_choice in
         ;;
     2)
         echo -e "${GREEN}Starting production environment...${NC}"
-        
+
         # Check if SSL certificates exist
         if [ ! -f nginx/ssl/cert.pem ] || [ ! -f nginx/ssl/key.pem ]; then
             echo -e "${YELLOW}SSL certificates not found. Do you want to generate self-signed certificates?${NC}"
             read -p "Generate certificates? [y/n]: " gen_cert
-            
+
             if [[ $gen_cert == "y" || $gen_cert == "Y" ]]; then
                 mkdir -p nginx/ssl
                 openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout nginx/ssl/key.pem -out nginx/ssl/cert.pem
@@ -50,14 +50,14 @@ case $env_choice in
                 exit 1
             fi
         fi
-        
+
         # Start production containers
         docker-compose -f docker-compose.prod.yml down
         docker-compose -f docker-compose.prod.yml up --build -d
-        
+
         echo -e "${GREEN}Production environment started in detached mode.${NC}"
         echo -e "${GREEN}To see logs, run: docker-compose -f docker-compose.prod.yml logs -f${NC}"
-        
+
         # Show access information
         echo -e "\n${GREEN}Your application is now running!${NC}"
         echo -e "Access your application at:"
@@ -65,7 +65,7 @@ case $env_choice in
         echo -e "  - ${YELLOW}API endpoints: https://localhost/api/v1/books/${NC}"
         echo -e "  - ${YELLOW}API documentation: https://localhost/api/v1/docs/${NC}"
         echo -e "  - ${YELLOW}Health check: https://localhost/api/v1/health/${NC}"
-        
+
         # Get server IP if available
         SERVER_IP=$(hostname -I 2>/dev/null | awk '{print $1}')
         if [ ! -z "$SERVER_IP" ]; then

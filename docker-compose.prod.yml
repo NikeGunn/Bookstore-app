@@ -23,7 +23,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-  
+
   db:
     image: postgres:15
     restart: always
@@ -38,7 +38,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  
+
   nginx:
     image: nginx:1.25
     restart: always

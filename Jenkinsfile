@@ -9,27 +9,27 @@ pipeline {
                 checkout scm
             }
         }
-        
+
         stage("Build") {
             steps {
                 echo "Building the Docker image"
                 sh "docker build -t bookstore-api ."
             }
         }
-        
+
         stage("Test") {
             steps {
                 echo "Running tests"
                 sh "docker run --rm bookstore-api python manage.py test"
             }
         }
-        
+
         stage("Push to Docker Hub") {
             steps {
                 echo "Pushing to Docker Hub"
                 withCredentials([usernamePassword(
-                    credentialsId: "dockerHub", 
-                    passwordVariable: "dockerHubPass", 
+                    credentialsId: "dockerHub",
+                    passwordVariable: "dockerHubPass",
                     usernameVariable: "dockerHubUser"
                 )]) {
                     sh "docker tag bookstore-api ${env.dockerHubUser}/bookstore-api:latest"
@@ -38,21 +38,21 @@ pipeline {
                 }
             }
         }
-        
+
         stage("Deploy") {
             steps {
                 echo "Deploying the container"
-                
+
                 // Create necessary directories
                 sh "mkdir -p nginx/ssl nginx/conf.d"
-                
+
                 // Generate SSL certificates if they don't exist
                 sh '''
                     if [ ! -f nginx/ssl/cert.pem ] || [ ! -f nginx/ssl/key.pem ]; then
                         openssl req -x509 -nodes -days 365 -newkey rsa:2048 -subj "/CN=localhost" -keyout nginx/ssl/key.pem -out nginx/ssl/cert.pem
                     fi
                 '''
-                
+
                 // Create or update .env file with production settings
                 sh '''
                     cat > .env << EOL
@@ -63,11 +63,11 @@ DATABASE_URL=postgresql://postgres:postgres@db:5432/postgres
 CORS_ALLOWED_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
 EOL
                 '''
-                
+
                 // Update docker-compose.prod.yml to use the Docker Hub image
                 withCredentials([usernamePassword(
-                    credentialsId: "dockerHub", 
-                    passwordVariable: "dockerHubPass", 
+                    credentialsId: "dockerHub",
+                    passwordVariable: "dockerHubPass",
                     usernameVariable: "dockerHubUser"
                 )]) {
                     sh '''
@@ -92,7 +92,7 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
-  
+
   db:
     image: postgres:15
     restart: always
@@ -107,7 +107,7 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-  
+
   nginx:
     image: nginx:1.25
     restart: always
@@ -137,14 +137,14 @@ volumes:
 EOL
                     '''
                 }
-                
+
                 // Create nginx configuration file
                 sh '''
                     cat > nginx/conf.d/default.conf << EOL
 server {
     listen 80;
     server_name _;
-    
+
     # Redirect all HTTP requests to HTTPS
     return 301 https://$host$request_uri;
 }
@@ -176,20 +176,20 @@ server {
 }
 EOL
                 '''
-                
+
                 // Stop any running containers and start new ones
                 sh "docker-compose -f docker-compose.prod.yml down"
                 sh "docker-compose -f docker-compose.prod.yml up -d"
-                
+
                 // Wait for services to be ready
                 sh "sleep 10"
-                
+
                 // Verify the deployment
                 sh "curl -k https://localhost/api/v1/health/"
             }
         }
     }
-    
+
     post {
         success {
             echo "Deployment successful! Your Bookstore API is now running."
