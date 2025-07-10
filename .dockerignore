@@ -1,0 +1,66 @@
+# Version control
+.git
+.gitignore
+.github
+
+# Python cache
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib64/
+parts/
+sdist/
+var/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Local development
+.env
+.env.*
+!.env.example
+venv/
+.venv/
+env/
+ENV/
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Database
+db.sqlite3
+
+# Static files
+/static/
+/media/
+
+# Logs
+*.log
+
+# Node
+node_modules/
+
+# AWS
+.elasticbeanstalk/
