@@ -1,10 +1,17 @@
 pipeline {
     agent any
+    
+    // Add this trigger to explicitly enable GitHub webhook
+    triggers {
+        githubPush()
+    }
 
     stages {
         stage("Code") {
             steps {
                 echo "Cloning the code"
+                // Print information about the trigger
+                echo "Build triggered by: ${currentBuild.getBuildCauses()[0].shortDescription}"
                 // Use checkout scm to get code from the repository where Jenkinsfile is located
                 checkout scm
             }
